@@ -48,6 +48,27 @@
             font-weight: 600;
         }
         .btn:hover { background: #3730a3; }
+        .district-select {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            background: white;
+        }
+        .district-select:focus { outline: none; border-color: #4F46E5; }
+        .filter-row { display: flex; gap: 15px; flex-wrap: wrap; }
+        .filter-row .search-input { flex: 2; min-width: 200px; margin-bottom: 0; }
+        .filter-row .district-select { flex: 1; min-width: 150px; margin-bottom: 0; }
+        .featured-badge {
+            background: #FF6B35;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            margin-left: 8px;
+        }
         .results { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
         .card { 
             background: white; 
@@ -89,7 +110,26 @@
         </header>
 
         <div class="search-box">
-            <input type="text" class="search-input" id="searchInput" placeholder="Search by distributor name or location...">
+            <div class="filter-row">
+                <input type="text" class="search-input" id="searchInput" placeholder="Type medicine name (e.g., Paracetamol, first 3 letters)...">
+                <select class="district-select" id="districtSelect">
+                    <option value="">All Districts</option>
+                    <option value="Thrissur" selected>Thrissur (Main)</option>
+                    <option value="Kochi">Ernakulam (Kochi)</option>
+                    <option value="Kozhikode">Kozhikode</option>
+                    <option value="Thiruvananthapuram">Thiruvananthapuram</option>
+                    <option value="Kannur">Kannur</option>
+                    <option value="Kottayam">Kottayam</option>
+                    <option value="Malappuram">Malappuram</option>
+                    <option value="Palakkad">Palakkad</option>
+                    <option value="Alappuzha">Alappuzha</option>
+                    <option value="Kollam">Kollam</option>
+                    <option value="Pathanamthitta">Pathanamthitta</option>
+                    <option value="Idukki">Idukki</option>
+                    <option value="Wayanad">Wayanad</option>
+                    <option value="Kasaragod">Kasaragod</option>
+                </select>
+            </div>
             <button class="btn" onclick="search()">Search</button>
             <p id="count"></p>
         </div>
@@ -103,41 +143,93 @@
 
     <script src="medicines_data.js"></script>
     <script>
-        // Distributor details lookup
+        // Major Kerala Distributors with districts
         const distributorDetails = {
-            "Apollo Pharmacy Distributors": { location: "Kochi", phone: "+91 98471 23456", type: "Retail Chain" },
-            "Medplus Healthcare": { location: "Thiruvananthapuram", phone: "+91 98765 43210", type: "Healthcare" },
-            "Kerala Medical Agencies": { location: "Kozhikode", phone: "+91 98950 12345", type: "Wholesale" },
+            // Thrissur - Main District (Major Distributors)
+            "Leo Pharma Distributors": { location: "Thrissur", phone: "+91 98460 11111", type: "Major Distributor", featured: true },
+            "JJ Brothers Pharma": { location: "Thrissur", phone: "+91 98460 22222", type: "Major Distributor", featured: true },
+            "Sree Krishna Medicals": { location: "Thrissur", phone: "+91 98460 33333", type: "Wholesale", featured: true },
+            "Bharath Pharma": { location: "Thrissur", phone: "+91 98460 44444", type: "Distributor", featured: true },
             "South India Pharma": { location: "Thrissur", phone: "+91 99472 56789", type: "Distributor" },
-            "Cochin Medical Supplies": { location: "Ernakulam", phone: "+91 98095 67890", type: "Medical Supplies" },
-            "Malabar Pharma Hub": { location: "Malappuram", phone: "+91 99123 45678", type: "Wholesale" },
-            "Palakkad Medical Stores": { location: "Palakkad", phone: "+91 99678 90123", type: "Retail" },
+            "Thrissur Medical Agencies": { location: "Thrissur", phone: "+91 98460 55555", type: "Wholesale" },
+            "Royal Pharma Hub": { location: "Thrissur", phone: "+91 98460 66666", type: "Retail Chain" },
+            "Guruvayur Medical Stores": { location: "Thrissur", phone: "+91 98460 77777", type: "Retail" },
+            "Kunnamkulam Pharma": { location: "Thrissur", phone: "+91 98460 88888", type: "Distributor" },
+            "Chalakudy Medicals": { location: "Thrissur", phone: "+91 98460 99999", type: "Retail" },
+            // Kochi / Ernakulam
+            "Apollo Pharmacy Distributors": { location: "Kochi", phone: "+91 98471 23456", type: "Retail Chain", featured: true },
+            "Cochin Medical Supplies": { location: "Kochi", phone: "+91 98095 67890", type: "Medical Supplies" },
+            "Ernakulam Pharma Hub": { location: "Kochi", phone: "+91 98471 11111", type: "Wholesale" },
+            "Aluva Medical Agencies": { location: "Kochi", phone: "+91 98471 22222", type: "Distributor" },
+            "Edappally Pharmacy": { location: "Kochi", phone: "+91 98471 33333", type: "Retail" },
+            // Kozhikode
+            "Kerala Medical Agencies": { location: "Kozhikode", phone: "+91 98950 12345", type: "Wholesale" },
+            "Calicut Pharma World": { location: "Kozhikode", phone: "+91 98950 11111", type: "Major Distributor", featured: true },
+            "Malabar Medicals": { location: "Kozhikode", phone: "+91 98950 22222", type: "Distributor" },
+            // Thiruvananthapuram
+            "Medplus Healthcare": { location: "Thiruvananthapuram", phone: "+91 98765 43210", type: "Healthcare", featured: true },
+            "Trivandrum Pharma Center": { location: "Thiruvananthapuram", phone: "+91 98765 11111", type: "Wholesale" },
+            "Attingal Medical Stores": { location: "Thiruvananthapuram", phone: "+91 98765 22222", type: "Retail" },
+            // Kannur
             "Kannur Pharma Center": { location: "Kannur", phone: "+91 99876 54321", type: "Distributor" },
+            "Payyanur Medicals": { location: "Kannur", phone: "+91 99876 11111", type: "Retail" },
+            "Thalassery Pharma": { location: "Kannur", phone: "+91 99876 22222", type: "Wholesale" },
+            // Kottayam
             "Kottayam Medicine Mart": { location: "Kottayam", phone: "+91 98345 67890", type: "Retail" },
+            "Pala Medical Agencies": { location: "Kottayam", phone: "+91 98345 11111", type: "Distributor" },
+            "Changanassery Pharma": { location: "Kottayam", phone: "+91 98345 22222", type: "Retail" },
+            // Malappuram
+            "Malabar Pharma Hub": { location: "Malappuram", phone: "+91 99123 45678", type: "Wholesale" },
+            "Manjeri Medicals": { location: "Malappuram", phone: "+91 99123 11111", type: "Distributor" },
+            "Perinthalmanna Pharma": { location: "Malappuram", phone: "+91 99123 22222", type: "Retail" },
+            // Palakkad
+            "Palakkad Medical Stores": { location: "Palakkad", phone: "+91 99678 90123", type: "Retail" },
+            "Ottapalam Pharma": { location: "Palakkad", phone: "+91 99678 11111", type: "Wholesale" },
+            // Alappuzha
             "Alappuzha Medical Agency": { location: "Alappuzha", phone: "+91 99456 78901", type: "Wholesale" },
+            "Chengannur Medicals": { location: "Alappuzha", phone: "+91 99456 11111", type: "Retail" },
+            // Kollam
+            "Kollam Medical Hub": { location: "Kollam", phone: "+91 99234 56789", type: "Distributor" },
+            "Punalur Pharma": { location: "Kollam", phone: "+91 99234 11111", type: "Retail" },
+            // Pathanamthitta
             "Pathanamthitta Pharma": { location: "Pathanamthitta", phone: "+91 98765 09876", type: "Distributor" },
+            "Thiruvalla Medicals": { location: "Pathanamthitta", phone: "+91 98765 11111", type: "Retail" },
+            // Idukki
             "Idukki Mountain Pharma": { location: "Idukki", phone: "+91 99012 34567", type: "Retail" },
+            "Thodupuzha Medicals": { location: "Idukki", phone: "+91 99012 11111", type: "Distributor" },
+            // Wayanad
             "Wayanad Green Pharmacy": { location: "Wayanad", phone: "+91 99567 89012", type: "Medical" },
+            "Sultan Bathery Pharma": { location: "Wayanad", phone: "+91 99567 11111", type: "Retail" },
+            // Kasaragod
             "Kasaragod Pharma World": { location: "Kasaragod", phone: "+91 98890 12345", type: "Wholesale" },
-            "Kollam Medical Hub": { location: "Kollam", phone: "+91 99234 56789", type: "Distributor" }
+            "Nileshwar Medicals": { location: "Kasaragod", phone: "+91 98890 11111", type: "Retail" }
         };
 
         function displayResults(distributors, medicineName) {
             const resultsDiv = document.getElementById('results');
             const countDiv = document.getElementById('count');
+            const district = document.getElementById('districtSelect').value;
             
-            countDiv.textContent = `${distributors.length} distributor${distributors.length !== 1 ? 's' : ''} found`;
+            countDiv.textContent = `${distributors.length} distributor${distributors.length !== 1 ? 's' : ''} found` + (district ? ` in ${district}` : '');
             
             if (distributors.length === 0) {
-                resultsDiv.innerHTML = '<div style="text-align:center;color:white;font-size:1.2em;">No distributors found. Try a different medicine name.</div>';
+                resultsDiv.innerHTML = '<div style="text-align:center;color:white;font-size:1.2em;">No distributors found. Try a different medicine name or district.</div>';
                 return;
             }
 
+            // Sort: featured first, then by name
+            distributors.sort((a, b) => {
+                const aFeatured = distributorDetails[a]?.featured ? 1 : 0;
+                const bFeatured = distributorDetails[b]?.featured ? 1 : 0;
+                return bFeatured - aFeatured || a.localeCompare(b);
+            });
+
             resultsDiv.innerHTML = distributors.map(d => {
                 const details = distributorDetails[d];
+                const featuredBadge = details.featured ? '<span class="featured-badge">TOP DISTRIBUTOR</span>' : '';
                 return `
                 <div class="card">
-                    <h3>${d}</h3>
+                    <h3>${d} ${featuredBadge}</h3>
                     <p>📍 ${details.location}</p>
                     <p>📞 <a href="tel:${details.phone}">${details.phone}</a></p>
                     <p>🏛️ Kerala</p>
@@ -151,9 +243,10 @@
 
         function search() {
             const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const district = document.getElementById('districtSelect').value;
             
-            if (!query || query.length < 3) {
-                document.getElementById('count').textContent = 'Type at least 3 letters to search';
+            if (!query || query.length < 2) {
+                document.getElementById('count').textContent = 'Type at least 2 letters to search';
                 document.getElementById('results').innerHTML = '';
                 return;
             }
@@ -170,18 +263,36 @@
             }
 
             // Get all unique distributors for matching medicines
-            const allDistributors = new Set();
+            let allDistributors = new Set();
             matchingMedicines.forEach(m => {
                 m.distributors.forEach(d => allDistributors.add(d));
             });
 
+            // Filter by district if selected
+            let distributorList = Array.from(allDistributors);
+            if (district) {
+                distributorList = distributorList.filter(d => {
+                    const details = distributorDetails[d];
+                    return details && details.location === district;
+                });
+            }
+
             // Show the first matching medicine name in results
             const medicineName = matchingMedicines[0].name;
-            displayResults(Array.from(allDistributors), medicineName);
+            displayResults(distributorList, medicineName);
         }
 
-        // Show instructions on load
-        document.getElementById('count').textContent = 'Type a medicine name (min 3 letters) and click Search';
+        // Show Thrissur featured distributors on load
+        function showThrissurFeatured() {
+            const thrissurDistributors = Object.keys(distributorDetails).filter(d => 
+                distributorDetails[d].location === 'Thrissur'
+            );
+            displayResults(thrissurDistributors, 'All Medicines');
+            document.getElementById('count').textContent = `${thrissurDistributors.length} major distributors in Thrissur`;
+        }
+
+        // Load Thrissur on startup
+        showThrissurFeatured();
 
         // Allow Enter key to search
         document.getElementById('searchInput').addEventListener('keypress', function(e) {
