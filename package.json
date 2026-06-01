@@ -3,15 +3,16 @@
   "version": "1.0.0",
   "description": "Free medicine distributor search app for Kerala",
   "main": "server.js",
+  "homepage": "https://roshmusik-ops.github.io/medicine-distributor-app",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
     "web": "react-scripts start",
     "build": "react-scripts build",
+    "deploy": "npm run build && gh-pages -d build",
     "native": "expo start",
     "android": "expo start --android",
-    "ios": "expo start --ios",
-    "scrape": "python scraper.py"
+    "ios": "expo start --ios"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -33,7 +34,8 @@
     "react-scripts": "5.0.1",
     "nodemon": "^3.0.1",
     "tailwindcss": "^3.3.0",
-    "babel-preset-expo": "^9.5.0"
+    "babel-preset-expo": "^9.5.0",
+    "gh-pages": "^5.0.0"
   },
   "keywords": [
     "medicine",
