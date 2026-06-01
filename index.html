@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicine Distributor - Kerala</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        header { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 15px; 
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 { color: #4F46E5; font-size: 2.5em; margin-bottom: 10px; }
+        .subtitle { color: #666; font-size: 1.1em; }
+        .search-box { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 15px; 
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        .search-input { 
+            width: 100%; 
+            padding: 15px; 
+            font-size: 1.1em; 
+            border: 2px solid #e0e0e0; 
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .search-input:focus { outline: none; border-color: #4F46E5; }
+        .btn { 
+            background: #4F46E5; 
+            color: white; 
+            padding: 15px 40px; 
+            border: none; 
+            border-radius: 10px;
+            font-size: 1.1em; 
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn:hover { background: #3730a3; }
+        .results { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        .card { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .card:hover { transform: translateY(-5px); }
+        .card h3 { color: #1a1a1a; margin-bottom: 15px; font-size: 1.3em; }
+        .card p { color: #555; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .card a { color: #4F46E5; text-decoration: none; }
+        .card a:hover { text-decoration: underline; }
+        .badge { 
+            display: inline-block; 
+            background: #4F46E5; 
+            color: white; 
+            padding: 5px 15px; 
+            border-radius: 20px;
+            font-size: 0.85em; 
+            margin-top: 15px;
+        }
+        .footer { 
+            text-align: center; 
+            color: white; 
+            padding: 40px; 
+            margin-top: 50px;
+            opacity: 0.9;
+        }
+        .hidden { display: none; }
+        #count { color: #666; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💊 Medicine Distributor</h1>
+            <p class="subtitle">Find medicine distributors in Kerala - Free & Unlimited Search</p>
+        </header>
+
+        <div class="search-box">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search by distributor name or location...">
+            <button class="btn" onclick="search()">Search</button>
+            <p id="count"></p>
+        </div>
+
+        <div class="results" id="results"></div>
+
+        <div class="footer">
+            <p>© 2026 Medicine Distributor App | Free for all Kerala distributors</p>
+        </div>
+    </div>
+
+    <script>
+        // Sample distributor data for Kerala
+        const distributors = [
+            { name: "Apollo Pharmacy Distributors", location: "Kochi", phone: "+91 98471 23456", state: "Kerala", type: "Retail Chain" },
+            { name: "Medplus Healthcare", location: "Thiruvananthapuram", phone: "+91 98765 43210", state: "Kerala", type: "Healthcare" },
+            { name: "Kerala Medical Agencies", location: "Kozhikode", phone: "+91 98950 12345", state: "Kerala", type: "Wholesale" },
+            { name: "South India Pharma", location: "Thrissur", phone: "+91 99472 56789", state: "Kerala", type: "Distributor" },
+            { name: "Cochin Medical Supplies", location: "Ernakulam", phone: "+91 98095 67890", state: "Kerala", type: "Medical Supplies" },
+            { name: "Malabar Pharma Hub", location: "Malappuram", phone: "+91 99123 45678", state: "Kerala", type: "Wholesale" },
+            { name: "Palakkad Medical Stores", location: "Palakkad", phone: "+91 99678 90123", state: "Kerala", type: "Retail" },
+            { name: "Kannur Pharma Center", location: "Kannur", phone: "+91 99876 54321", state: "Kerala", type: "Distributor" },
+            { name: "Kottayam Medicine Mart", location: "Kottayam", phone: "+91 98345 67890", state: "Kerala", type: "Retail" },
+            { name: "Alappuzha Medical Agency", location: "Alappuzha", phone: "+91 99456 78901", state: "Kerala", type: "Wholesale" },
+            { name: "Pathanamthitta Pharma", location: "Pathanamthitta", phone: "+91 98765 09876", state: "Kerala", type: "Distributor" },
+            { name: "Idukki Mountain Pharma", location: "Idukki", phone: "+91 99012 34567", state: "Kerala", type: "Retail" },
+            { name: "Wayanad Green Pharmacy", location: "Wayanad", phone: "+91 99567 89012", state: "Kerala", type: "Medical" },
+            { name: "Kasaragod Pharma World", location: "Kasaragod", phone: "+91 98890 12345", state: "Kerala", type: "Wholesale" },
+            { name: "Kollam Medical Hub", location: "Kollam", phone: "+91 99234 56789", state: "Kerala", type: "Distributor" }
+        ];
+
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            const countDiv = document.getElementById('count');
+            
+            countDiv.textContent = `${data.length} distributor${data.length !== 1 ? 's' : ''} found`;
+            
+            if (data.length === 0) {
+                resultsDiv.innerHTML = '<div style="text-align:center;color:white;font-size:1.2em;">No distributors found. Try a different search.</div>';
+                return;
+            }
+
+            resultsDiv.innerHTML = data.map(d => `
+                <div class="card">
+                    <h3>${d.name}</h3>
+                    <p>📍 ${d.location}</p>
+                    <p>📞 <a href="tel:${d.phone}">${d.phone}</a></p>
+                    <p>🏛️ ${d.state}</p>
+                    <p>🏪 ${d.type}</p>
+                    <span class="badge">Kerala Distributor</span>
+                </div>
+            `).join('');
+        }
+
+        function search() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            if (!query) {
+                displayResults(distributors);
+                return;
+            }
+
+            const filtered = distributors.filter(d => 
+                d.name.toLowerCase().includes(query) ||
+                d.location.toLowerCase().includes(query) ||
+                d.type.toLowerCase().includes(query)
+            );
+
+            displayResults(filtered);
+        }
+
+        // Load all on startup
+        displayResults(distributors);
+
+        // Allow Enter key to search
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') search();
+        });
+    </script>
+</body>
+</html>
