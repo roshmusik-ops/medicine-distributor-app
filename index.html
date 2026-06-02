@@ -188,13 +188,9 @@
     </div>
 
     <script src="distributors.js"></script>
+    <script src="medicine_mapping.js"></script>
     <script>
-        const commonMedicines = [
-            'Paracetamol', 'Ibuprofen', 'Aspirin', 'Amoxicillin', 'Metformin', 'Atorvastatin',
-            'Amlodipine', 'Lisinopril', 'Omeprazole', 'Diclofenac', 'Clopidogrel', 'Warfarin',
-            'Simvastatin', 'Levothyroxine', 'Atenolol', 'Losartan', 'Valsartan', 'Glipizide',
-            'Gabapentin', 'Pregabalin', 'Fluoxetine', 'Sertraline', 'Amitriptyline', 'Doxepin'
-        ];
+        const commonMedicines = Object.keys(medicineBrandMapping);
 
         function showTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -237,7 +233,7 @@
         }
 
         function searchMedicines(medicineString, resultDivId) {
-            const medicines = medicineString.split(',').map(m => m.trim().toLowerCase()).filter(m => m);
+            const medicines = medicineString.split(',').map(m => m.trim()).filter(m => m);
             
             if (medicines.length === 0) {
                 document.getElementById(resultDivId).innerHTML = '<div class="message info">Please enter at least one medicine name</div>';
@@ -245,20 +241,36 @@
             }
 
             const foundDistributors = new Set();
+            let foundMedicines = [];
             
             medicines.forEach(med => {
-                allDistributors.generic.forEach(dist => {
-                    foundDistributors.add(JSON.stringify({...dist, type: 'Generic'}));
-                });
-                allDistributors.ethical.forEach(dist => {
-                    foundDistributors.add(JSON.stringify({...dist, type: 'Ethical'}));
-                });
+                // Find exact match (case-insensitive)
+                const matchedMedicine = Object.keys(medicineBrandMapping).find(m => m.toLowerCase() === med.toLowerCase());
+                
+                if (matchedMedicine) {
+                    foundMedicines.push(matchedMedicine);
+                    medicineBrandMapping[matchedMedicine].forEach(distName => {
+                        foundDistributors.add(distName);
+                    });
+                }
             });
 
-            const distributors = Array.from(foundDistributors).map(d => JSON.parse(d));
+            if (foundDistributors.size === 0) {
+                document.getElementById(resultDivId).innerHTML = '<div class="message info">No distributors found for these medicines. Try different names.</div>';
+                return;
+            }
+
+            // Get distributor details
+            const distributors = Array.from(foundDistributors).map(distName => {
+                const generic = allDistributors.generic.find(d => d.name === distName);
+                const ethical = allDistributors.ethical.find(d => d.name === distName);
+                return generic || ethical;
+            }).filter(d => d);
+
             distributors.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
 
-            let html = `<div class="message success">Found ${distributors.length} distributors for your medicines</div>`;
+            let html = `<div class="message success">Found ${foundMedicines.length} medicine(s): <strong>${foundMedicines.join(', ')}</strong></div>`;
+            html += `<div class="message success">${distributors.length} distributor${distributors.length !== 1 ? 's' : ''} stock these medicines</div>`;
             html += '<div class="distributors-grid">';
             
             distributors.forEach(dist => {
