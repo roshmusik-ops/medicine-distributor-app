@@ -6,7 +6,7 @@ import json
 medicine_brand_mapping = {
     # Generic Medicines (Molecule Names)
     "Atorvastatin": ["Acceedee Agencies", "Santevita", "Aiswarya Pharma", "Unique Pharma"],
-    "Metformin": ["Unique Pharma", "Medi Agencies"],
+    "Metformin": ["Acceedee Agencies", "Unique Pharma", "Aiswarya Pharma", "Charlsons Medisales", "Acceedee Pharma", "Medi Agencies", "Santevita"],
     "Amoxicillin": ["Medi Agencies", "Santevita"],
     "Paracetamol": ["Acceedee Agencies", "Acceedee Pharma", "Charlsons Medisales", "Santevita"],
     "Ibuprofen": ["Acceedee Agencies", "Unique Pharma"],
