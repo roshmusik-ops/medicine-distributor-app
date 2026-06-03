@@ -273,7 +273,11 @@
 
             distributors.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
 
-            let html = `<div class="message success">Found ${foundMedicines.length} medicine(s): <strong>${[...new Set(foundMedicines)].join(', ')}</strong></div>`;
+            const uniqueMedicines = [...new Set(foundMedicines)];
+            let html = `<div class="message success">Found ${uniqueMedicines.length} medicine(s) starting with "<strong>${medicines.join(', ')}</strong>":</div>`;
+            html += `<div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 20px;">`;
+            html += uniqueMedicines.map(m => `<span class="medicine-tag">${m}</span>`).join('');
+            html += `</div>`;
             html += `<div class="message success">${distributors.length} distributor${distributors.length !== 1 ? 's' : ''} stock these medicines</div>`;
             html += '<div class="distributors-grid">';
             
